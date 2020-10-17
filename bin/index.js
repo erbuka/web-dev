@@ -5,7 +5,8 @@ const path = require("path");
 const colors = require("colors");
 const nw = require("node-watch");
 const terser = require("terser");
-const sass = require("node-sass");
+const sass = require("node-sass");ù
+const ncp = require("ncp").ncp;
 
 const message = (msg, level) => {
     const msgHead = "[Web-Dev]";
@@ -53,7 +54,7 @@ const taskRunners = {
         });
     },
     scss: (scssTask) => {
-        message(`Starting SCSS task: ${scssTask.src.yellow}`)
+        message(`Starting SCSS task: ${scssTask.src.yellow}`);
         nw(scssTask.src, { recursive: true }, () => {
             for (let f of listFiles(scssTask.src, ".scss")) {
                 if (path.basename(f).startsWith("_"))
@@ -68,6 +69,12 @@ const taskRunners = {
                 });
             }
         });
+    },
+    ncp: (copyTask) => {
+        message(`Starting copy task: ${scssTask.src.yellow}`);
+        nw(copyTask.src, { recursive: true }, (evt, name) => {
+            ncp(copyTask.src, copyTask.dst)
+        });
     }
 }
 
@@ -75,8 +82,7 @@ const taskRunners = {
 message("Loading configuration...");
 const config = loadConfig();
 
-for (let t of config.tasks) {
+for (let t of config.tasks)
     taskRunners[t.type](t);
-}
 
 
