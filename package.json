@@ -1,0 +1,17 @@
+{
+  "name": "web-dev",
+  "version": "1.0.0",
+  "description": "Simple compiler for scss/js for web",
+  "main": "./bin/index.js",
+  "bin": {
+    "web-dev": "./bin/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "node-sass": "^4.14.1",
+    "node-watch": "^0.7.0",
+    "terser": "^5.3.5"
+  }
+}
