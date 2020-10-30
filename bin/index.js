@@ -5,7 +5,7 @@ const path = require("path");
 const colors = require("colors");
 const nw = require("node-watch");
 const terser = require("terser");
-const sass = require("node-sass");ù
+const sass = require("node-sass");
 const ncp = require("ncp").ncp;
 
 const message = (msg, level) => {
