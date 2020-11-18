@@ -49,6 +49,7 @@ const taskRunners = {
                 const dstFile = path.resolve(jsTask.dst, path.basename(f));
                 const code = fs.readFileSync(f, { encoding: "utf-8" });
                 terser.minify(code).then((result) => fs.writeFileSync(dstFile, result.code, { encoding: "utf-8" }));
+                message(`Rewrite ${path.basename(dstFile).yellow}`);
             }
 
         });
@@ -61,19 +62,22 @@ const taskRunners = {
                     continue;
                 sass.render({ file: f }, (err, result) => {
                     if (err) {
-                        message(`SCSS Error ${err.file}:${err.line}`, "error")
+                        message(`SCSS Error ${err.file}:${err.line} - ${err.message}`, "error")
                     } else {
-                        const dstFile = path.resolve(scssTask.dst, path.basename(f));
+                        const dstFile = path.resolve(scssTask.dst, path.parse(f).name + ".css");
                         fs.writeFileSync(dstFile, result.css);
+                        message(`Rewrite ${path.basename(dstFile).yellow}`);
                     }
                 });
             }
         });
     },
     ncp: (copyTask) => {
-        message(`Starting copy task: ${scssTask.src.yellow}`);
+        message(`Starting copy task: ${copyTask.src.yellow}`);
+        ncp(copyTask.src, copyTask.dst);
         nw(copyTask.src, { recursive: true }, (evt, name) => {
-            ncp(copyTask.src, copyTask.dst)
+            ncp(copyTask.src, copyTask.dst);
+            message(`Copy ${path.basename(copyTask.src).yellow}`)
         });
     }
 }
