@@ -9,10 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/preset-react": "^7.14.5",
     "colors": "^1.4.0",
     "ncp": "^2.0.0",
-    "node-sass": "^4.14.1",
-    "node-watch": "^0.7.0",
-    "terser": "^5.3.5"
+    "node-sass": "^6.0.1",
+    "node-watch": "^0.7.2",
+    "terser": "^5.9.0"
   }
 }

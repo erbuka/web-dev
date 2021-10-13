@@ -7,6 +7,7 @@ const nw = require("node-watch");
 const terser = require("terser");
 const sass = require("node-sass");
 const ncp = require("ncp").ncp;
+const babel = require("@babel/core");
 
 const message = (msg, level) => {
     const msgHead = "[Web-Dev]";
@@ -20,7 +21,7 @@ const message = (msg, level) => {
         default: head = msgHead.green; break;
     }
 
-    console.log(head + " - " + msg);
+    console.log(head + " " + msg);
 }
 
 const loadConfig = () => {
@@ -47,8 +48,18 @@ const taskRunners = {
         nw(jsTask.src, { recursive: true }, () => {
             for (let f of listFiles(jsTask.src, ".js")) {
                 const dstFile = path.resolve(jsTask.dst, path.basename(f));
-                const code = fs.readFileSync(f, { encoding: "utf-8" });
-                terser.minify(code).then((result) => fs.writeFileSync(dstFile, result.code, { encoding: "utf-8" }));
+                let code = fs.readFileSync(f, { encoding: "utf-8" });
+
+                if(jsTask.react) {
+                    code = babel.transformSync(code, {
+                        presets: [require("@babel/preset-react")],
+                    }).code;
+                }
+
+                terser.minify(code).then((result) => {
+                    fs.mkdirSync(path.dirname(dstFile), { recursive:true });
+                    fs.writeFileSync(dstFile, result.code, { encoding: "utf-8" })
+                });
                 message(`Rewrite ${path.basename(dstFile).yellow}`);
             }
 
@@ -60,11 +71,12 @@ const taskRunners = {
             for (let f of listFiles(scssTask.src, ".scss")) {
                 if (path.basename(f).startsWith("_"))
                     continue;
-                sass.render({ file: f }, (err, result) => {
+                sass.render({ file: f, outputStyle: scssTask.minify ? "compressed" : "nested"  }, (err, result) => {
                     if (err) {
                         message(`SCSS Error ${err.file}:${err.line} - ${err.message}`, "error")
                     } else {
-                        const dstFile = path.resolve(scssTask.dst, path.parse(f).name + ".css");
+                        const dstFile = path.resolve(scssTask.dst, path.parse(f).name + (scssTask.minify ? ".min.css" : ".css"));
+                        fs.mkdirSync(path.dirname(dstFile), { recursive:true });
                         fs.writeFileSync(dstFile, result.css);
                         message(`Rewrite ${path.basename(dstFile).yellow}`);
                     }
